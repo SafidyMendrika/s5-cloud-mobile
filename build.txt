@@ -1,0 +1,18 @@
+// build an'le projet
+ionic build
+
+// add capacitor
+npx cap init
+npx cap add android
+
+// lancement am android studio
+npx cap open android
+
+// raha misy modification html 
+npx cap copy
+
+// doc : 
+https://enappd.com/blog/icon-splash-in-ionic-react-capacitor-apps/114/
+
+
+
