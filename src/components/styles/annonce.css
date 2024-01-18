@@ -1,0 +1,14 @@
+.annonce-card{
+}
+.annonce-card-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.annonce-photo-button{
+    background-color: #5c5c5c;
+    padding: 1%;
+    border-radius: 10px;
+}

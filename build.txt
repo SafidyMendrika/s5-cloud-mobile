@@ -1,13 +1,15 @@
 // build an'le projet
 ionic build
 
-// add capacitor
+// add capacitor raha ilaina
 npx cap init
 npx cap add android
 
 // lancement am android studio
 npx cap open android
 
+// build android
+npx cap build android
 // raha misy modification html 
 npx cap copy
 

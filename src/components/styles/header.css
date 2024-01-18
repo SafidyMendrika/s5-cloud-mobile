@@ -1,0 +1,14 @@
+.header-logo{
+    width: 100px;
+}
+.app-header{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000000000;
+    box-shadow: 1px 3px 6px #5c5c5c;
+}
+
+.app-logo{
+    height: 50px;
+}

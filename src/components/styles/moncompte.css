@@ -1,0 +1,29 @@
+.moncompte-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: column;
+    padding: 2%;
+}
+.mon-compte-main{
+    background-color: red;
+}
+
+.moncompte-avatar{
+    width: 120px;
+    height: 120px;
+}
+
+
+.moncompte-header .header-element{
+    margin: 2%;
+}
+.modifier-buttons{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+.modifier-buttons .button{
+    width: 40%;
+}

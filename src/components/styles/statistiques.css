@@ -1,0 +1,50 @@
+.stat-head{
+    width: 100%;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 4%;
+}
+
+.stat-head .card{
+    width: 30%;
+    height: 90%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: column;
+
+    border: 1px #c5c5c5 solid;
+    border-radius: 15px;
+}
+
+.chart-container{
+    width: 100%;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;  
+    padding: 5%;  
+}
+.chart-container div{
+    width: 100%;
+    height: 100%;
+    background-color: #c4c4c4;
+}
+
+.revenu-container{
+
+    padding: 2% 6%;  
+
+}
+
+.stat-head h1{
+    color: #ffde59;
+    font-size: 300%;
+    margin: 0;
+}
+.stat-head p{
+    margin: 0;
+}
