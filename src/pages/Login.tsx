@@ -1,9 +1,12 @@
 import React from 'react';
 import './styles/login.css';
 import { IonContent, IonLoading, IonPage } from '@ionic/react';
-
+import { Notifier } from '../components/Notifier';
 const Login: React.FC = () => {
   function redirect() : void {
+    const notification : Notifier=  new Notifier();
+
+    notification.scheduleNotification();
     window.setTimeout(()=>{
       window.location.href = "/accueil";
     },1100)
