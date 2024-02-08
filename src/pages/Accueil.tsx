@@ -14,6 +14,9 @@ interface RouteParams {
 
 const Accueil: React.FC = () => {
 
+  if (window.localStorage.getItem("token") == null) {
+    window.location.href = "/login";
+  }
 
   const  param : RouteParams = useParams(); 
 

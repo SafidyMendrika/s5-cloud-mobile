@@ -1,12 +1,15 @@
 import React, { useRef, useState } from "react";
 
 import "../styles/moncompte.css";
-import { IonAvatar, IonButton, IonButtons, IonCard, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonList, IonModal, IonRefresher, IonRefresherContent, IonText, IonTitle, IonToolbar, RefresherEventDetail } from "@ionic/react";
-import { carOutline, card, cardOutline, cart, create, eyeOutline, keyOutline, locationOutline, mailOutline, phoneLandscape, phonePortrait, phonePortraitOutline, timeOutline } from "ionicons/icons";
+import { IonAvatar, IonButton, IonButtons, IonCard, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonList, IonModal, IonRefresher, IonRefresherContent, IonText, IonTitle, IonToolbar, RefresherEventDetail, useIonAlert } from "@ionic/react";
+import { carOutline, card, cardOutline, cart, create, exit, eyeOutline, keyOutline, locationOutline, mailOutline, phoneLandscape, phonePortrait, phonePortraitOutline, timeOutline } from "ionicons/icons";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 import Header from "../Header";
 
 const MonCompte : React.FC = ()=>{
+
+  console.log(window.localStorage.getItem("token"));
+  
     function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
         setTimeout(() => {
           // Any calls to load data go here
@@ -30,6 +33,23 @@ const MonCompte : React.FC = ()=>{
         }
         
       }
+
+      const [displayAlert] = useIonAlert();
+
+      const disconnect = () =>
+          displayAlert({
+              message: 'Voulez vous vous deconnecter ? ',
+              buttons: [
+                  { text: 'Non', role: 'cancel' },
+                  { text: 'Oui', role: 'confirm' }
+              ],
+              onDidDismiss: (e) => {
+                  if (e.detail.role === 'cancel') return;
+                  
+                window.localStorage.clear();
+                window.location.href = "/login";
+              }
+          });
     return (
         <>
             <IonContent fullscreen className="mon-compte-main">
@@ -85,6 +105,11 @@ const MonCompte : React.FC = ()=>{
                                 &nbsp;&nbsp;&nbsp;&nbsp;
                             <IonButton fill="clear" onClick={askPassword}>
                                 <IonIcon icon={eyeOutline} />
+                            </IonButton>
+                        </IonItem>
+                        <IonItem >
+                            <IonButton color={"danger"} onClick={disconnect} className="ion-padding" >
+                                <IonIcon icon={exit} color="light"/> Se deconnecter
                             </IonButton>
                         </IonItem>
                     </IonList>

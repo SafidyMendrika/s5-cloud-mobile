@@ -24,7 +24,9 @@ main .container{
     justify-content: space-around;
     flex-direction: column;
 }
-
+.sign-main{
+    padding-top: 50%;
+}
 
 .header{
     display: flex;
@@ -63,4 +65,17 @@ main .container{
 }
 .signin-link span{
     color: #ffde59;
+}
+
+.sign-footer{
+    display: flex;
+    justify-content: space-around;
+    padding: 3%;
+}
+
+.sign-input-container{
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin: 2% 0%;
 }

@@ -10,15 +10,32 @@
     justify-content: space-around;
     background-color: #fff;
 
+    z-index: 100000000;
 }
 .buttons{
     display: flex;
     align-items: center;
     justify-content: space-around;
-    width: 80%;
+    width: 95%;
     border: #5c5c5c 1px solid;
     height: 98%;
     border-radius: 40px;
 
     background-color: #fff;
+
+    overflow: visible;
+}
+
+.add-button{
+    position: relative;
+    top: -30%;
+    background-color: #5c5c5c;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    z-index: 100000;
+}
+
+.ajout-modal{
+    z-index: 100;
 }
