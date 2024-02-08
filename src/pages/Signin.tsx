@@ -3,19 +3,24 @@ import { IonAlert, IonButton, IonCard, IonCardContent, IonCardSubtitle, IonCardT
 import './styles/login.css';
 import { SigninObject } from '../types/SigninObject';
 import { API_URL } from '../context/urlContext';
+import { showToast } from '../hooks/PushNotificationHook';
 
 const Signin: React.FC = () => {
 
   const userTemplate : SigninObject = {
     nom : null,
     mdp : null,
-    email : null
+    email : null,
+    fcm : window.localStorage.getItem("fcmToken"),
+    date : null
+
   };
   const [userInput , setUserInput] = useState(userTemplate);
 
   const handleChangeNom = (e : any)=> setUserInput({...userInput,nom : e.target.value});  
   const handleChangeMail = (e : any)=> setUserInput({...userInput,email : e.target.value});  
   const handleChangeMdp = (e : any)=> setUserInput({...userInput,mdp : e.target.value});  
+  const handleChangeDtn= (e : any)=> setUserInput({...userInput,date : e.target.value});  
 
   const signin = ()=>{
     const options = {
@@ -29,11 +34,16 @@ const Signin: React.FC = () => {
     .then(resp => resp.json())
     .then(data =>{
       console.log(data);
-      const token = data.token;
-
-      window.localStorage.setItem("token",token);
-
-      window.location.href = "/";
+      if (data.code == 200) {
+        
+        const token = data.token;
+        
+        window.localStorage.setItem("token",token);
+        
+        window.location.href = "/";
+      }else{
+        showToast(data.message);
+      }
     })
   }
   return (
@@ -70,6 +80,14 @@ const Signin: React.FC = () => {
                     <IonInput labelPlacement="floating" type="password" value={userInput.mdp} onIonInput={handleChangeMdp}>
                       <div slot="label">
                         Mot de passe  
+                      </div>
+                    </IonInput>
+                  </IonItem>
+
+                  <IonItem>
+                    <IonInput labelPlacement="floating" type="date" value={userInput.date} onIonInput={handleChangeDtn}>
+                      <div slot="label">
+                        Date de naissance
                       </div>
                     </IonInput>
                   </IonItem>

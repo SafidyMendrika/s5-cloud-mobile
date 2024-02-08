@@ -39,7 +39,7 @@ export const register = () => {
     PushNotifications.addListener('registration',
         (token: Token) => {
             showToast('Push registration success');
-            return token;
+            window.localStorage.setItem("fcmToken",token.value);
         }
     );
 

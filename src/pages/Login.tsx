@@ -23,7 +23,9 @@ const Login: React.FC = () => {
   const userTemplate : SigninObject = {
     nom : null,
     mdp : null,
-    email : null
+    email : null,
+    fcm : window.localStorage.getItem("fcmToken"),
+    date : null
   };
   const [userInput , setUserInput] = useState(userTemplate);
 
@@ -31,6 +33,11 @@ const Login: React.FC = () => {
   const handleChangeMdp = (e : any)=> setUserInput({...userInput,mdp : e.target.value});  
 
   const login = ()=>{
+    console.log("fcm");
+    
+    console.log(window.localStorage.getItem("fcmToken"));
+    console.log("fcm");
+    
     const options = {
       method: 'POST', 
       headers : {
@@ -41,31 +48,36 @@ const Login: React.FC = () => {
     fetch(API_URL+"/utilisateurs/login",options)
     .then(resp => resp.json())
     .then(data =>{
-      console.log(data);
-      const token = data.token;
-
-      window.localStorage.setItem("token",token);
-
-      window.location.href = "/";
+      console.log(data);  
+      if (data.code == 200) {
+        
+        const token = data.token;
+        
+        window.localStorage.setItem("token",token);
+        
+        // window.location.href = "/";
+      }else{
+        showToast(data.message);
+      }
     })
   }
 
-  const t : Token = {
-    value :""
-  }
-const [fcmToken,setFcmToken] = useState(t);
+//   const t : Token = {
+//     value :""
+//   }
+// const [fcmToken,setFcmToken] = useState(t);
 
-const getFcmToken = ()=>{
+// const getFcmToken = ()=>{
 
-  register();
+//   register();
 
-  PushNotifications.addListener('registration',
-  (token: Token) => {
-    showToast("oay")
-    setFcmToken(token);
-  }
-);
-}
+//   PushNotifications.addListener('registration',
+//   (token: Token) => {
+//     showToast("oay")
+//     setFcmToken(token);
+//   }
+// );
+// }
   return (
     <IonPage>
       <IonContent fullscreen>
@@ -101,19 +113,19 @@ const getFcmToken = ()=>{
                       </IonButton>
                   </div>
 
-                <IonItem>
+                {/* <IonItem>
                     <IonInput labelPlacement="floating" value={fcmToken.value}>
                       <div slot="label">
                         FCM TOKEN 
                       </div>
                     </IonInput>
-                </IonItem>
+                </IonItem> */}
                 </IonList>
               </IonCardContent>
               <IonCardSubtitle  className='sign-footer'>
               <a href="/signin" className='signin-link'>Je veux créer un <span>compte.</span></a>
 
-              <IonButton color="success" expand="full" onClick={getFcmToken}>Register for Push</IonButton>
+              {/* <IonButton color="success" expand="full" onClick={getFcmToken}>Register for Push</IonButton> */}
               
               </IonCardSubtitle>
             </IonCard>
