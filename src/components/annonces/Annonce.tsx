@@ -89,7 +89,7 @@ const Annonce : React.FC<{ annonce: AnnonceType }> = ({annonce})=>{
                 </IonText>
                 <br/>
                 <IonText>
-                    <IonButton color={"primary"} onClick={toggleDetail}>
+                    <IonButton fill="clear" color={"primary"} onClick={toggleDetail}>
                         Details
                     </IonButton> 
                 </IonText>
