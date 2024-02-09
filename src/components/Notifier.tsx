@@ -6,8 +6,8 @@ export class Notifier{
             notifications : [
                 {
                     id : 111,
-                    title : "Message de Toky" ,
-                    body : "Bonjour , je suis interessé par votre Mercedess",
+                    title : "Bonjour" ,
+                    body : "Bienvenue chez Gascar app",
                 }
             ]
         }

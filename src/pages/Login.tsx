@@ -114,9 +114,7 @@ const Login: React.FC = () => {
                 </IonTitle>
               </IonCardTitle>
               <IonCardContent>
-              <IonInput labelPlacement="floating"  value={userInput.fcm}> 
                       
-                </IonInput>
                 <IonList>
                   <IonItem>
                     <IonInput labelPlacement="floating" value={userInput.email}  onIonInput={handleChangeMail}> 
