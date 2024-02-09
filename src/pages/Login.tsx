@@ -6,8 +6,13 @@ import { API_URL } from '../context/urlContext';
 
 import {   showToast } from '../hooks/PushNotificationHook';
 import { PushNotifications, Token } from '@capacitor/push-notifications';
+import axios from 'axios';
+import { Notifier } from '../components/Notifier';
 
 const Login: React.FC = () => {
+  const not = new Notifier();
+
+  not.scheduleNotification();
   // function redirect() : void {
   //   const notification : Notifier=  new Notifier();
 
@@ -16,8 +21,6 @@ const Login: React.FC = () => {
   //     window.location.href = "/accueil";
   //   },1100)
   // }
-
-  const [fcmToken, setFcmToken] = useState("");
   
   const userTemplate : SigninObject = {
     nom : null,
@@ -36,8 +39,8 @@ const Login: React.FC = () => {
     // On success, we should be able to receive notifications
     PushNotifications.addListener('registration',
     (token: Token) => {
-      showToast('Push registration success');
-      setFcmToken(token.value);
+      // showToast('Push registration success');
+      setUserInput({...userInput , fcm : token.value});
     }
     );
     
@@ -52,32 +55,35 @@ const Login: React.FC = () => {
     present({
       message : "connexion en cours"
     })
-    setUserInput({...userInput,fcm : fcmToken});
 
-
-    const options = {
-      method: 'POST', 
+    axios.post(API_URL+"/utilisateurs/login",userInput,{
       headers : {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(userInput) 
-    };
+        "Content-Type" : "application/json"
+      }
+    }).then(resp =>{
+      const data = resp.data;
 
-    fetch(API_URL+"/utilisateurs/login",options)
-    .then(resp => resp.json())
-    .then(data =>{
-      console.log(data);  
+      console.log(data);
+
       if (data.code == 200) {
         const token = data.data.token;
         
         localStorage.setItem("token",token);
                   
+        console.log("zey");
+        
         window.location.href = "/";
       }else{
         showToast(data.message);
       }
       dismiss()
+      
+    }).catch(error => {
+      console.log(JSON.stringify(error));
+      
     })
+    
+  
   }
 
 //   const t : Token = {
@@ -107,8 +113,10 @@ const Login: React.FC = () => {
                   Se connecter
                 </IonTitle>
               </IonCardTitle>
-            {JSON.stringify(userInput)}
               <IonCardContent>
+              <IonInput labelPlacement="floating"  value={userInput.fcm}> 
+                      
+                </IonInput>
                 <IonList>
                   <IonItem>
                     <IonInput labelPlacement="floating"  onIonInput={handleChangeMail}> 

@@ -37,17 +37,17 @@ const Navigation : React.FC = ()=>{
                 <IonButton fill="clear" id="mes-annonces" href="/accueil/annonces">
                     <IonIcon icon={megaphoneOutline} size="large"/>
                 </IonButton>
-                <IonButton fill="clear" id="home" href="/accueil/home">
+                {/* <IonButton fill="clear" id="home" href="/accueil/home">
                     <IonIcon icon={statsChart} size="large" />
-                </IonButton>
+                </IonButton> */}
 
                 <IonButton fill="clear" id="mon-compte" className="add-button"  expand="block" onClick={() => setIsOpen(true)}>
                     <IonIcon icon={add}  size="large"/>
                 </IonButton>
 
-                <IonButton fill="clear" id="mon-compte" href="/accueil/moncompte">
+                {/* <IonButton fill="clear" id="mon-compte" href="/accueil/moncompte">
                     <IonIcon icon={idCardOutline}  size="large"/>
-                </IonButton>
+                </IonButton> */}
                 <IonButton fill="clear" id="mon-compte" href="/accueil/moncompte">
                     <IonIcon icon={personOutline}  size="large"/>
                 </IonButton>

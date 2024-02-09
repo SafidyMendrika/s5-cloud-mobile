@@ -80,6 +80,30 @@ export const usePhotoGallery = () => {
         }
     };
 
+    const takeGallery = async () => {
+        try {
+            const width  = 800;
+            const heigth  = 800;
+
+            const photo: CameraPhoto = await Camera.getPhoto({
+                resultType: CameraResultType.Uri,
+                source: CameraSource.Photos,
+                quality: 100,
+                width : width,
+                height : heigth
+            });
+    
+            const fileName = new Date().getTime() + '.jpeg';
+            const savedFileImage = await savePhoto(photo, fileName);
+    
+            const newPhotos = [...photos, savedFileImage];
+            setPhotos(newPhotos);
+
+        } catch (e) {
+            return;
+        }
+    };
+
 	const deletePhoto = async (fileName: string) => {
         setPhotos(photos.filter((photo) => photo.filePath !== fileName));
         await Filesystem.deleteFile({
@@ -92,6 +116,7 @@ export const usePhotoGallery = () => {
 		photos,
         setPhotos,
 		takePhoto,
+		takeGallery,
 		deletePhoto,
         savePhoto
 	};

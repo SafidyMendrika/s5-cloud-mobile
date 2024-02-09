@@ -7,6 +7,7 @@ import {  carOutline, cashOutline, searchCircle, timeOutline } from "ionicons/ic
 import { UserToken } from "../../types/UserToken";
 import { jwtDecode } from "jwt-decode";
 import { API_URL } from "../../context/urlContext";
+import { AnnonceType } from "../../types/AnnonceType";
 const Annonces : React.FC = ()=>{
 
     let token = localStorage.getItem("token");
@@ -27,12 +28,15 @@ const Annonces : React.FC = ()=>{
         })
     },[])
     return (
-        <>*
+        <>
                 <section  className="annonce-recherche" >
                     <IonSearchbar searchIcon={searchCircle}  placeholder="Rechercher" />
                 </section>
 
-                <Annonce />      
+                    {annonces.map((annonce : AnnonceType) =>(
+                        <Annonce  key={annonce.id} annonce={annonce}/>      
+
+                    ))}
         </>
     );
 }

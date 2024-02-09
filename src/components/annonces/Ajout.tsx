@@ -3,6 +3,7 @@ import {
   IonCard,
   IonCol,
   IonContent,
+  IonFabButton,
   IonGrid,
   IonIcon,
   IonImg,
@@ -17,12 +18,15 @@ import {
   IonTextarea,
   IonThumbnail,
   IonTitle,
+  useIonLoading,
 } from "@ionic/react";
 import {
   addCircleSharp,
+  camera,
   chevronBack,
   chevronForward,
   createOutline,
+  imageOutline,
 } from "ionicons/icons";
 import React, { useEffect, useState } from "react";
 import { Filesystem, Directory } from "@capacitor/filesystem";
@@ -30,8 +34,22 @@ import { Storage } from "@capacitor/storage";
 import AjoutPhoto from "./AjoutPhoto";
 import { API_URL } from "../../context/urlContext";
 import { AjoutAnnonceView } from "../../types/AjoutAnnonceView";
+import { NewAnnonce } from "../../types/NewAnnonce";
+import { jwtDecode } from "jwt-decode";
+import { UserToken } from "../../types/UserToken";
+import axios from "axios";
+import PhotoGallery from "./PhotoGallery";
+import { usePhotoGallery } from "../../hooks/usePhotoGallery";
+import { showToast } from "../../hooks/PushNotificationHook";
 
 const Ajout: React.FC = () => {
+  let token = localStorage.getItem("token");
+  if (token == null) {
+    token = "";
+  }
+  const user : UserToken = jwtDecode(token);
+
+
   const temp: AjoutAnnonceView = {
     page: 1,
     marques: [],
@@ -49,11 +67,7 @@ const Ajout: React.FC = () => {
     setAjoutAnnonceView({ ...ajoutAnnonceView, page: 1 });
   }
 
-  const [photos, setPhotos] = useState<any>([]);
 
-  const handleFileChange = (event: any) => {
-    setPhotos([...photos, ...event.target.files]);
-  };
 
   const findMoteurs = new Promise<any>((resolve, reject) => {
     fetch(API_URL + "/moteurs")
@@ -92,8 +106,27 @@ const Ajout: React.FC = () => {
         resolve(data.data);
       });
   });
+  const findEnergies = new Promise<any>((resolve, reject) => {
+    fetch(API_URL + "/energies")
+      .then((resp) => resp.json())
+      .then((data) => {
+
+        resolve(data.data);
+      });
+  });
+  
+  const [selectedMarque , setSelectedMarque] = useState(0);
+  const handleChangemarque = (e:any)=> setSelectedMarque(e.target.value);
+  //
+  useEffect(()=>{
+    console.log(selectedMarque);
+    
+    console.log("niova");
+  
+  },[selectedMarque]);
 
   useEffect(() => {
+
     findMoteurs.then((moteurs) => {
       setAjoutAnnonceView((ajoutAnnonceView) => ({
         ...ajoutAnnonceView,
@@ -121,26 +154,115 @@ const Ajout: React.FC = () => {
           vitesses: vitesses,
         }));
       });
-
+    findEnergies.then((energies) => {
+      setAjoutAnnonceView((ajoutAnnonceView) => ({
+        ...ajoutAnnonceView,
+        energies: energies,
+      }));
+    });
   }, []);
+
+  const newAnnonceTemplate : NewAnnonce = {
+    idutilisateur: user.idutilisateur,
+    idmodele: 0,
+    description:  "",
+    prix: 0,
+    date: new Date().toJSON(),
+    idenergie: 0,
+    idvitesse: 0,
+    idmoteur: 0
+  }
+  const [annonce,setAnnonce] = useState(newAnnonceTemplate);
+
+  const handleChangeModele = (e:any)=> setAnnonce({...annonce,idmodele : e.target.value})
+  const handleChangeEnergie= (e:any)=> setAnnonce({...annonce,idenergie : e.target.value});
+  const handleChangePrix= (e:any)=> setAnnonce({...annonce,prix : e.target.value});
+  const handleChangeVitesse= (e:any)=> setAnnonce({...annonce,idvitesse : e.target.value});
+  const handleChangeMoteur= (e:any)=> setAnnonce({...annonce,idmoteur : e.target.value});
+  const handleChangeDescription= (e:any)=> setAnnonce({...annonce,description : e.target.value});
+
+  const [present , dismiss] = useIonLoading();
+  const sendAnnonce = async ()=>{
+    present({
+      message : "ajout en cours"
+    })
+   const formData = new FormData();
+   Object.entries(annonce).forEach(([key, value]) => {
+    formData.append(key, value);
+  });
+
+  for (const photo of photos) {
+    try {
+      const response = await fetch(photo.filePath);
+      const blob = await response.blob();
+      const file = new File([blob], photo.filePath ||"", { type: 'image/jpeg'});
+      console.log(file);
+      
+      formData.append('files', file);
+    } catch (error) {
+      console.error('Error fetching file:', error);
+    }
+  }
+
+  
+    axios.post(API_URL+"/annonces", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        "Authorization" : "Bearer "+localStorage.getItem("token")
+      }
+    })
+    .then(response => {
+      console.log(response);
+      
+      const data = response.data;
+
+      console.log(data);
+
+      if (data.code == 200) {
+        showToast("inseré avec succès")
+        
+      }
+      dismiss();
+      
+    })
+    .catch(error => {
+      console.error(error);
+    });
+  }
+
+
+  // photos -----
+
+  const { photos,takePhoto,takeGallery, deletePhoto  } = usePhotoGallery();
+
+  const send = ()=>{
+      photos.forEach(photo =>{
+          console.log(photo.filePath + " :: "+photo.webviewPath);
+          console.log(photo);
+      })
+  }
+  
+
+  
+      
   return (
     <IonPage className="ion-padding">
       <IonCard className="ion-padding" style={{ padding: "3%" }}>
         {ajoutAnnonceView.page == 1 && (
           <IonList>
             <IonItem>
-              <IonSelect label="Marque" placeholder="Marques">
+              <IonSelect label="Marque" placeholder="Marques" onIonChange={handleChangemarque} >
                 {ajoutAnnonceView.marques.map((marque) => (
-                  <IonSelectOption value="{marque.id}" key={marque.id}>
+                  <IonSelectOption value={marque.id} key={marque.id}>
                     {marque.nom}
                   </IonSelectOption>
                 ))}
               </IonSelect>
             </IonItem>
             <IonItem>
-              <IonSelect label="Modeles" placeholder="Modeles">
+              <IonSelect label="Modeles" placeholder="Modeles" onIonChange={handleChangeModele}>
                 {ajoutAnnonceView.modeles.map((modele) => (
-                  <IonSelectOption value="{modele.id}" key={modele.id}>
+                  <IonSelectOption value={modele.id} key={modele.id}>
                     {modele.nom}
                   </IonSelectOption>
                 ))}
@@ -148,21 +270,23 @@ const Ajout: React.FC = () => {
             </IonItem>
 
             <IonItem>
-              <IonSelect label="Energie" placeholder="Energies">
-                <IonSelectOption value="apple">Kely</IonSelectOption>
-                <IonSelectOption value="banana">Be</IonSelectOption>
-                <IonSelectOption value="orange">Antonony</IonSelectOption>
+              <IonSelect label="Energie" placeholder="Energies" onIonChange={handleChangeEnergie}>
+              {ajoutAnnonceView.energies.map((energie) => (
+                  <IonSelectOption value={energie.id} key={energie.id}>
+                    {energie.nom}
+                  </IonSelectOption>
+                ))}
               </IonSelect>
             </IonItem>
 
             <IonItem>
-              <IonInput label="Prix" />
+              <IonInput label="Prix" onIonInput={handleChangePrix}/>
             </IonItem>
 
             <IonItem>
-              <IonSelect label="Vitesse" placeholder="Favorite Fruit">
+              <IonSelect label="Vitesse" placeholder="Vitesse" onIonChange={handleChangeVitesse}>
               {ajoutAnnonceView.vitesses.map((vitesse) => (
-                  <IonSelectOption value="{vitesse.id}" key={vitesse.id}>
+                  <IonSelectOption value={vitesse.id} key={vitesse.id}>
                     {vitesse.nom}
                   </IonSelectOption>
                 ))}
@@ -170,9 +294,9 @@ const Ajout: React.FC = () => {
             </IonItem>
 
             <IonItem>
-              <IonSelect label="Moteur" placeholder="Moteurs">
+              <IonSelect label="Moteur" placeholder="Moteurs" onIonChange={handleChangeMoteur}>
                 {ajoutAnnonceView.moteurs.map((moteur) => (
-                  <IonSelectOption value="{moteur.id}" key={moteur.id}>
+                  <IonSelectOption value={moteur.id} key={moteur.id}>
                     {moteur.nom}
                   </IonSelectOption>
                 ))}
@@ -181,12 +305,27 @@ const Ajout: React.FC = () => {
 
             <IonItem>
               <IonLabel>Description</IonLabel>
-              <IonTextarea autoGrow={true}></IonTextarea>
+              <IonTextarea autoGrow={true} onIonInput={handleChangeDescription}></IonTextarea>
             </IonItem>
           </IonList>
         )}
 
-        {ajoutAnnonceView.page == 2 && <AjoutPhoto />}
+        {ajoutAnnonceView.page == 2 &&
+           <div className="ion-padding">
+           <PhotoGallery photos={photos} deletePhoto={deletePhoto} />
+
+           <div className="ion-padding" style={{display : "flex" , justifyContent : "center"}}>
+               <IonFabButton onClick={() => takeGallery()} color={"light"} style={{margin : "0% 2%"}}>
+                   <IonIcon icon={imageOutline}></IonIcon>
+               </IonFabButton>
+
+               <IonFabButton onClick={() => takePhoto()} color={"warning"} style={{margin : "0% 2%"}}>
+                   <IonIcon icon={camera}></IonIcon>
+               </IonFabButton>
+           </div>
+
+       </div   >
+        }
 
         <div style={{ display: "flex", padding: "2%" }}>
           {ajoutAnnonceView.page == 1 && (
@@ -214,7 +353,7 @@ const Ajout: React.FC = () => {
                 color={"warning"}
                 style={{ float: "right", width: "100%" }}
                 size="small"
-                onClick={nextPage}
+                onClick={sendAnnonce}
               >
                 confirmer
               </IonButton>

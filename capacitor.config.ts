@@ -5,7 +5,8 @@ const config: CapacitorConfig = {
   appName: 'gascar',
   webDir: 'build',
   server: {
-    androidScheme: 'https'
+    // androidScheme: 'https'
+    androidScheme: 'http'
   },
   plugins: {
     LocalNotifications: {

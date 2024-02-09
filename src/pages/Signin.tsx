@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { IonAlert, IonButton, IonCard, IonCardContent, IonCardSubtitle, IonCardTitle, IonContent, IonInput, IonItem, IonList, IonPage, IonText, IonTitle } from '@ionic/react';
+import { IonAlert, IonButton, IonCard, IonCardContent, IonCardSubtitle, IonCardTitle, IonContent, IonInput, IonItem, IonList, IonPage, IonText, IonTitle, useIonLoading } from '@ionic/react';
 import './styles/login.css';
 import { SigninObject } from '../types/SigninObject';
 import { API_URL } from '../context/urlContext';
 import { showToast } from '../hooks/PushNotificationHook';
 import { PushNotifications, Token } from '@capacitor/push-notifications';
+import axios from 'axios';
 
 const Signin: React.FC = () => {
+  const userTemplate : SigninObject = {
+    nom : null,
+    mdp : null,
+    email : null,
+    fcm :null,
+    date : null
 
-  const [fcmToken, setFcmToken] = useState("");
+  };
+  
+  const [userInput , setUserInput] = useState(userTemplate);
 
   useEffect(()=>{
 
@@ -19,53 +28,51 @@ const Signin: React.FC = () => {
     PushNotifications.addListener('registration',
     (token: Token) => {
       showToast('Push registration success');
-      setFcmToken(token.value);
+      setUserInput({...userInput , fcm : token.value});
     }
     );
     
   },[])
 
-  const userTemplate : SigninObject = {
-    nom : null,
-    mdp : null,
-    email : null,
-    fcm :fcmToken,
-    date : null
-
-  };
-  const [userInput , setUserInput] = useState(userTemplate);
 
   const handleChangeNom = (e : any)=> setUserInput({...userInput,nom : e.target.value});  
   const handleChangeMail = (e : any)=> setUserInput({...userInput,email : e.target.value});  
   const handleChangeMdp = (e : any)=> setUserInput({...userInput,mdp : e.target.value});  
   const handleChangeDtn= (e : any)=> setUserInput({...userInput,date : e.target.value});  
 
+  const [present, dismiss] = useIonLoading();
+
   const signin = ()=>{
-    const options = {
-      method: 'POST', 
+    present({
+      message : "création en cours"
+    })
+
+    axios.post(API_URL+"/utilisateurs",userInput,{
       headers : {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(userInput) 
-    };
-    fetch(API_URL+"/utilisateurs",options)
-    .then(resp => resp.json())
-    .then(data =>{
-      console.log(data);
+        "Content-Type" : "application/json"
+      }
+    }).then(resp =>{
+      const data = resp.data;
+
+
       if (data.code == 200) {
+        const token = data.data.token;
         
-        const token = data.token;
+        localStorage.setItem("token",token);
         
-        window.localStorage.setItem("token",token);
         
         window.location.href = "/";
       }else{
         showToast(data.message);
       }
+      dismiss()
+      
+    }).catch(error => {
+      console.log(JSON.stringify(error));
+      
     })
-
-    console.log(userInput);
     
+  
   }
   return (
     <IonPage>

@@ -14,15 +14,18 @@ interface RouteParams {
 
 const Accueil: React.FC = () => {
 
-  if (window.localStorage.getItem("token") == null) {
-    window.location.href = "/login";
+  console.log(localStorage.getItem("token"));
+  
+
+  if (localStorage.getItem("token") == undefined  || localStorage.getItem("token") == null || localStorage.getItem("token") == "") {
+    location.href = "/login";
   }
 
   const  param : RouteParams = useParams(); 
 
   let toRender = null;  
   if (param.page == "" || param.page == null || param.page == "home") {
-    toRender = <Home />;
+    toRender = <Annonces />;
   }else if (param.page == "moncompte") {
     toRender = <MonCompte />;
   }else if (param.page == "annonces") {
