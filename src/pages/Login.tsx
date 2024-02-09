@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, {  useEffect, useState } from 'react';
 import './styles/login.css';
-import { IonButton, IonCard, IonCardContent, IonCardSubtitle, IonCardTitle, IonContent, IonInput, IonItem, IonList, IonLoading, IonPage, IonTitle } from '@ionic/react';
-import { Notifier } from '../components/Notifier';
+import { IonButton, IonCard, IonCardContent, IonCardSubtitle, IonCardTitle, IonContent, IonInput, IonItem, IonList, IonLoading, IonPage, IonTitle, useIonLoading } from '@ionic/react';
 import { SigninObject } from '../types/SigninObject';
 import { API_URL } from '../context/urlContext';
 
-import { Toast } from "@capacitor/toast";
-import {  register, showToast } from '../hooks/PushNotificationHook';
+import {   showToast } from '../hooks/PushNotificationHook';
 import { PushNotifications, Token } from '@capacitor/push-notifications';
 
 const Login: React.FC = () => {
@@ -19,25 +17,44 @@ const Login: React.FC = () => {
   //   },1100)
   // }
 
+  const [fcmToken, setFcmToken] = useState("");
   
   const userTemplate : SigninObject = {
     nom : null,
     mdp : null,
     email : null,
-    fcm : window.localStorage.getItem("fcmToken"),
+    fcm : null,
     date : null
   };
   const [userInput , setUserInput] = useState(userTemplate);
 
+  useEffect(()=>{
+
+    // Register with Apple / Google to receive push via APNS/FCM
+    PushNotifications.register();
+    
+    // On success, we should be able to receive notifications
+    PushNotifications.addListener('registration',
+    (token: Token) => {
+      showToast('Push registration success');
+      setFcmToken(token.value);
+    }
+    );
+    
+  },[])
+
+
   const handleChangeMail = (e : any)=> setUserInput({...userInput,email : e.target.value});  
   const handleChangeMdp = (e : any)=> setUserInput({...userInput,mdp : e.target.value});  
 
+  const [present, dismiss] = useIonLoading();
   const login = ()=>{
-    console.log("fcm");
-    
-    console.log(window.localStorage.getItem("fcmToken"));
-    console.log("fcm");
-    
+    present({
+      message : "connexion en cours"
+    })
+    setUserInput({...userInput,fcm : fcmToken});
+
+
     const options = {
       method: 'POST', 
       headers : {
@@ -45,20 +62,21 @@ const Login: React.FC = () => {
       },
       body: JSON.stringify(userInput) 
     };
+
     fetch(API_URL+"/utilisateurs/login",options)
     .then(resp => resp.json())
     .then(data =>{
       console.log(data);  
       if (data.code == 200) {
+        const token = data.data.token;
         
-        const token = data.token;
-        
-        window.localStorage.setItem("token",token);
-        
-        // window.location.href = "/";
+        localStorage.setItem("token",token);
+                  
+        window.location.href = "/";
       }else{
         showToast(data.message);
       }
+      dismiss()
     })
   }
 
@@ -89,7 +107,7 @@ const Login: React.FC = () => {
                   Se connecter
                 </IonTitle>
               </IonCardTitle>
-
+            {JSON.stringify(userInput)}
               <IonCardContent>
                 <IonList>
                   <IonItem>
@@ -100,7 +118,7 @@ const Login: React.FC = () => {
                     </IonInput>
                   </IonItem>
                   <IonItem>
-                    <IonInput labelPlacement="floating" onIonInput={handleChangeMdp}>
+                    <IonInput labelPlacement="floating" type='password' onIonInput={handleChangeMdp}>
                       <div slot="label">
                         Mot de passe  
                       </div>

@@ -1,14 +1,45 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import "../styles/moncompte.css";
 import { IonAvatar, IonButton, IonButtons, IonCard, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonList, IonModal, IonRefresher, IonRefresherContent, IonText, IonTitle, IonToolbar, RefresherEventDetail, useIonAlert } from "@ionic/react";
 import { carOutline, card, cardOutline, cart, create, exit, eyeOutline, keyOutline, locationOutline, mailOutline, phoneLandscape, phonePortrait, phonePortraitOutline, timeOutline } from "ionicons/icons";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 import Header from "../Header";
+import {jwtDecode} from "jwt-decode";
+import { UserType } from "../../types/UserType";
+import { API_URL } from "../../context/urlContext";
+import { UserToken } from "../../types/UserToken";
 
 const MonCompte : React.FC = ()=>{
 
-  console.log(window.localStorage.getItem("token"));
+  let token = localStorage.getItem("token");
+  if (token == null) {
+    token = "";
+  }
+  const user : UserToken = jwtDecode(token);
+
+  const userTemplate : UserType= {
+    id: 0,
+    nom: "null",
+    email: "null",
+    telephone: "null",
+    date: "null",
+    genre: "null",
+    fcm: "null",
+    etat: 0
+  };
+  const [userDetail , setUserDetail] = useState(userTemplate);
+
+  useEffect(()=>{
+    
+    fetch(API_URL+"/utilisateurs/"+user.idutilisateur,{method : "GET"})
+    .then(resp => resp.json())
+    .then(data =>{
+      
+      setUserDetail(data.data);
+    })
+  },[]);
+  
   
     function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
         setTimeout(() => {
@@ -17,22 +48,7 @@ const MonCompte : React.FC = ()=>{
         }, 2000);
       }
 
-      const [password,setPassword] = useState("******"); 
-
-      function askPassword(){
-        if (password == "******") {
-            const password = prompt("entrer votre mot de passe");
-        
-            if (password == "azerty") {
-                setPassword(password)
-            }else{
-                alert("erreur du mot de passe");
-            }
-        }else{
-            setPassword("******");
-        }
-        
-      }
+      
 
       const [displayAlert] = useIonAlert();
 
@@ -61,7 +77,7 @@ const MonCompte : React.FC = ()=>{
                     <IonAvatar className="moncompte-avatar header-element" >
                         <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
                     </IonAvatar>
-                    <IonTitle className="header-element" size={"large"}> Safidy Mendrika</IonTitle>
+                    <IonTitle className="header-element" size={"large"}> {userDetail.nom}</IonTitle>
                     <IonButton fill="clear" id="open-modal" expand="block" >
                         <IonIcon icon={create} />
                         modifier
@@ -73,7 +89,7 @@ const MonCompte : React.FC = ()=>{
                         <IonItem >
                             <IonIcon  icon={phonePortraitOutline} /> &nbsp;
                                 <IonText>
-                                Téléphone : <b>+261 34 79 461 99</b>
+                                Téléphone : <b>{userDetail.telephone}</b>
                                 </IonText>
                         </IonItem>
 
@@ -87,26 +103,17 @@ const MonCompte : React.FC = ()=>{
                         <IonItem >
                             <IonIcon  icon={locationOutline} /> &nbsp;
                                 <IonText>
-                                Adresse : <b>Andoharanofotsy</b>
+                                Genre : <b>{userDetail.genre}</b>
                                 </IonText>
                         </IonItem>
 
                         <IonItem >
                             <IonIcon  icon={mailOutline} /> &nbsp;
                                 <IonText>
-                                Email : <b>mendrika@gmail.com</b>
+                                Email : <b>{userDetail.email}</b>
                                 </IonText>
                         </IonItem>
-                        <IonItem >
-                            <IonIcon  icon={keyOutline} /> &nbsp;
-                                <IonText>
-                                Mot de passe : <b>{password}</b>
-                                </IonText>
-                                &nbsp;&nbsp;&nbsp;&nbsp;
-                            <IonButton fill="clear" onClick={askPassword}>
-                                <IonIcon icon={eyeOutline} />
-                            </IonButton>
-                        </IonItem>
+                        
                         <IonItem >
                             <IonButton color={"danger"} onClick={disconnect} className="ion-padding" >
                                 <IonIcon icon={exit} color="light"/> Se deconnecter
@@ -115,12 +122,12 @@ const MonCompte : React.FC = ()=>{
                     </IonList>
                 </IonCard>
             </IonContent>
-            {genererModal(password)}
+            {genererModal(userDetail)}
             </>
 
     );
 }
-function genererModal(motDePasse : string){
+function genererModal(userDetail : UserType){
     const modal = useRef<HTMLIonModalElement>(null);
     const input = useRef<HTMLIonInputElement>(null);
 
@@ -147,43 +154,30 @@ function genererModal(motDePasse : string){
                 labelPlacement="stacked"
                 ref={input}
                 type="text"
-                placeholder="Safidy"
+                placeholder={userDetail.nom}
+                value={userDetail.nom}
               />
             </IonItem>
-            <IonItem>
-              <IonInput
-                label="Prenom"
-                labelPlacement="stacked"
-                ref={input}
-                type="text"
-                placeholder="Mendrika"
-              />
-            </IonItem>
+
             <IonItem>
               <IonInput
                 label="Téléphone"
                 labelPlacement="stacked"
                 ref={input}
                 type="text"
-                placeholder="+261 34 79 461 99"
+                placeholder={userDetail.telephone}
+                value={userDetail.telephone}
               />
             </IonItem>
-            <IonItem>
-              <IonInput
-                label="Adresse"
-                labelPlacement="stacked"
-                ref={input}
-                type="text"
-                placeholder="Andoharanofotsy"
-              />
-            </IonItem>
+
             <IonItem>
               <IonInput
                 label="Email"
                 labelPlacement="stacked"
                 ref={input}
                 type="text"
-                placeholder="mendrika@gmail.com"
+                placeholder={userDetail.email}
+                value={userDetail.email}
               />
             </IonItem>
             <IonItem>
@@ -192,7 +186,16 @@ function genererModal(motDePasse : string){
                 labelPlacement="stacked"
                 ref={input}
                 type="text"
-                placeholder={motDePasse}
+                placeholder="Ancien mot de passe"
+              />
+            </IonItem>
+            <IonItem>
+              <IonInput
+                label="Nouveau mot de passe"
+                labelPlacement="stacked"
+                ref={input}
+                type="text"
+                placeholder="nouveau mot de passe"
               />
             </IonItem>
 

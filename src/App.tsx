@@ -27,10 +27,8 @@
   import Login from './pages/Login';
   import Signin from './pages/Signin';
   import Accueil from './pages/Accueil';
-import { register } from './serviceWorkerRegistration';
 
   setupIonicReact();
-  register();
 
   const App: React.FC = () => (
 

@@ -1,17 +1,35 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IonAlert, IonButton, IonCard, IonCardContent, IonCardSubtitle, IonCardTitle, IonContent, IonInput, IonItem, IonList, IonPage, IonText, IonTitle } from '@ionic/react';
 import './styles/login.css';
 import { SigninObject } from '../types/SigninObject';
 import { API_URL } from '../context/urlContext';
 import { showToast } from '../hooks/PushNotificationHook';
+import { PushNotifications, Token } from '@capacitor/push-notifications';
 
 const Signin: React.FC = () => {
+
+  const [fcmToken, setFcmToken] = useState("");
+
+  useEffect(()=>{
+
+    // Register with Apple / Google to receive push via APNS/FCM
+    PushNotifications.register();
+    
+    // On success, we should be able to receive notifications
+    PushNotifications.addListener('registration',
+    (token: Token) => {
+      showToast('Push registration success');
+      setFcmToken(token.value);
+    }
+    );
+    
+  },[])
 
   const userTemplate : SigninObject = {
     nom : null,
     mdp : null,
     email : null,
-    fcm : window.localStorage.getItem("fcmToken"),
+    fcm :fcmToken,
     date : null
 
   };
@@ -45,6 +63,9 @@ const Signin: React.FC = () => {
         showToast(data.message);
       }
     })
+
+    console.log(userInput);
+    
   }
   return (
     <IonPage>
