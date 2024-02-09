@@ -61,6 +61,7 @@ const MonCompte : React.FC = ()=>{
         setTimeout(() => {
           // Any calls to load data go here
           event.detail.complete();
+          fetchDetail()
         }, 2000);
       }
 

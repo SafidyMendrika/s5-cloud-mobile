@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import "../styles/annonces.css";
-import {  IonIcon, IonSearchbar } from "@ionic/react";
+import {  IonContent, IonIcon, IonRefresher, IonRefresherContent, IonSearchbar, RefresherEventDetail } from "@ionic/react";
 import Annonce from "./Annonce";
 import {  carOutline, cashOutline, searchCircle, timeOutline } from "ionicons/icons";
 import { UserToken } from "../../types/UserToken";
@@ -19,6 +19,10 @@ const Annonces : React.FC = ()=>{
     const [annonces,setAnnonces] = useState([]);
 
     useEffect(()=>{
+        fetchData();
+    },[]);
+
+    const fetchData = ()=>{
         fetch(API_URL+"/utilisateurs/"+user.idutilisateur+"/annonces")
         .then(resp => resp.json())
         .then(data => {
@@ -26,18 +30,25 @@ const Annonces : React.FC = ()=>{
             
             setAnnonces(data.data);
         })
-    },[])
+    }
+    function handleRefresh(event: CustomEvent<RefresherEventDetail>) {
+        setTimeout(() => {
+          // Any calls to load data go here
+          event.detail.complete();
+          fetchData();
+        }, 2000);
+      }
     return (
-        <>
-                <section  className="annonce-recherche" >
-                    <IonSearchbar searchIcon={searchCircle}  placeholder="Rechercher" />
-                </section>
+        <IonContent>
+                <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+                    <IonRefresherContent></IonRefresherContent>
+                </IonRefresher>
 
                     {annonces.map((annonce : AnnonceType) =>(
                         <Annonce  key={annonce.id} annonce={annonce}/>      
 
                     ))}
-        </>
+        </IonContent>
     );
 }
 
