@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import "../styles/annonce.css"
-import { IonBadge, IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonContent, IonIcon, IonImg, IonItem, IonLabel, IonList, IonText, IonicSlides } from "@ionic/react";
+import { IonBadge, IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonContent, IonIcon, IonImg, IonItem, IonLabel, IonList, IonText, IonicSlides, useIonLoading } from "@ionic/react";
 import {  addCircleSharp, carOutline, carSharp,  cashOutline,  checkmark,  compass,  createOutline, earthOutline, gameController, personOutline, planet, planetOutline, speedometer, timeOutline } from "ionicons/icons";
 import { AnnonceType } from "../../types/AnnonceType";
 
@@ -16,6 +16,9 @@ import 'swiper/css/pagination';
 import 'swiper/css/scrollbar';
 import 'swiper/css/zoom';
 import '@ionic/react/css/ionic-swiper.css';
+import { API_URL } from "../../context/urlContext";
+import axios from "axios";
+import { showToast } from "../../hooks/PushNotificationHook";
 
 const Annonce : React.FC<{ annonce: AnnonceType }> = ({annonce})=>{
 
@@ -54,6 +57,34 @@ const Annonce : React.FC<{ annonce: AnnonceType }> = ({annonce})=>{
             setDetailHeght(defaultHeight);
         }
     },[detailled]);
+
+    const [present,dismiss] = useIonLoading();
+    const vendu = ()=>{
+        present({message : "traitement en cours"});
+
+        axios.post(API_URL+"/annonces/"+annonce.id+"/vendu", {}, {
+            headers: {
+              "Authorization" : "Bearer "+localStorage.getItem("token")
+            }
+          })
+          .then(response => {
+            console.log(response);
+            
+            const data = response.data;
+      
+            console.log(data);
+      
+            if (data.code == 200) {
+              showToast("vendu avec succès")
+              
+            }
+            dismiss();
+            
+          })
+          .catch(error => {
+            console.error(error);
+          });
+    }
     
     return (
         <IonCard className="annonce-card">
@@ -145,7 +176,7 @@ const Annonce : React.FC<{ annonce: AnnonceType }> = ({annonce})=>{
                                 
                     </IonButton>
 
-                    <IonButton color={"warning"} style={{float : "right",width:"50%"}} size="small" onClick={modifier}>
+                    <IonButton color={"warning"} style={{float : "right",width:"50%"}} size="small" onClick={vendu}>
                                 <IonIcon icon={checkmark} />
                     </IonButton>
 

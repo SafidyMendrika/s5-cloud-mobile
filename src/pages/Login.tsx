@@ -24,8 +24,8 @@ const Login: React.FC = () => {
   
   const userTemplate : SigninObject = {
     nom : null,
-    mdp : null,
-    email : null,
+    mdp : "mendrika",
+    email : "mendrika@email.com",
     fcm : null,
     date : null
   };
@@ -119,14 +119,14 @@ const Login: React.FC = () => {
                 </IonInput>
                 <IonList>
                   <IonItem>
-                    <IonInput labelPlacement="floating"  onIonInput={handleChangeMail}> 
+                    <IonInput labelPlacement="floating" value={userInput.email}  onIonInput={handleChangeMail}> 
                       <div slot="label">
                         Mail
                       </div>
                     </IonInput>
                   </IonItem>
                   <IonItem>
-                    <IonInput labelPlacement="floating" type='password' onIonInput={handleChangeMdp}>
+                    <IonInput labelPlacement="floating" value={userInput.mdp} type='password' onIonInput={handleChangeMdp}>
                       <div slot="label">
                         Mot de passe  
                       </div>
