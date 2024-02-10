@@ -10,9 +10,7 @@ import axios from 'axios';
 import { Notifier } from '../components/Notifier';
 
 const Login: React.FC = () => {
-  const not = new Notifier();
 
-  not.scheduleNotification();
   // function redirect() : void {
   //   const notification : Notifier=  new Notifier();
 
@@ -32,7 +30,9 @@ const Login: React.FC = () => {
   const [userInput , setUserInput] = useState(userTemplate);
 
   useEffect(()=>{
+    const not = new Notifier();
 
+    not.scheduleNotification();
     // Register with Apple / Google to receive push via APNS/FCM
     PushNotifications.register();
     
